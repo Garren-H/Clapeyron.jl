@@ -194,6 +194,7 @@ include("SuperAnc.jl")
 include("CritExtrapolation.jl")
 include("ClapeyronSat.jl")
 include("AntoineSat.jl")
+include("ConstrainedChemPotV.jl")
 
 
 """
