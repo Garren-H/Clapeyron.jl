@@ -247,7 +247,7 @@ function __gradients_for_root_finders(x::AbstractVector{T},tups::Tuple,f::Functi
     dx_dθ = - ∂f_∂x \ ∂f_∂θ
     x_dual = Vector{T_dual}(undef, n_equations) # preallocate
     for i in 1:n_equations
-        x_dual[i] = T_dual(x[i],T_partials(Tuple(@view dx_dθ[i,:])))
+        x_dual[i] = T_dual(x[i],T_partials(Tuple(dx_dθ[i,:])))
     end
     return x_dual
 end
