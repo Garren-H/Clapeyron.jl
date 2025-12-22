@@ -261,10 +261,11 @@ end
 
 __gradients_for_root_finders(::Union{AbstractArray{T},T},::Tuple,::Function) where T<:ForwardDiff.Dual = error("Input `x` cannot be a dual")
 
-function nested_ad_check(::A) where A
-    if A <: ForwardDiff.Dual
-        V = ForwardDiff.valtype(A)
-        V <: ForwardDiff.Dual && throw(NestedADError("Found nested Duals of type $A. This is currently not supported in implicit differentiation."))
+function nested_ad_check(a::A) where A
+    AT = eltype(a)
+    if AT <: ForwardDiff.Dual
+        V = ForwardDiff.valtype(AT)
+        V <: ForwardDiff.Dual && throw(NestedADError("Found nested Duals of type $AT. This is currently not supported in implicit differentiation."))
     end
     return nothing
 end
