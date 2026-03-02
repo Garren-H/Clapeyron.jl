@@ -614,7 +614,7 @@ function assoc_matrix_solve_ad(Xsol::X, K::KT, K_primal::KP)::Vector{V2} where {
         F_
     end# (1 + ∑_{jb} K⁽ⁱᵃʲᵇ⁾X⁽ⁱᵃʲᵇ⁾ )⁻¹ = Xⁱᵃ for all iₐ, but rearranged. 
     # f wrt X has polynomial form, which is easier (and more efficient) to differentiate compared to 1 ./ X
-    return __gradients_for_root_finders(Xsol,(K,N),(K_primal,N),f;F=similar(Xsol)) # implicit AD
+    return __gradients_for_root_finders(Xsol,K,K_primal,f;F=similar(Xsol)) # implicit AD
 end
 
 #exact calculation of site non-bonded fraction when there is only one site
