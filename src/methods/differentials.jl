@@ -219,11 +219,11 @@ _primalval(model::EoSModel,::T) where T = model
 Computes the gradients of `x` with respect to the relevant parameters in `tups` under the condition that `x` is implicitly defined through the root finding problem `f(x,tups) = 0`. 
 The function uses the implicit function theorem to compute the gradients efficiently through the reconstruction of Duals. We use the IFTDuals.jl package for this purpose, which has some restrictions, currently mixed nested Duals (i.e. different tags) are not supported. 
 """
-function __gradients_for_root_finders(x::Union{AbstractArray{T},T},tups,tups_primal,f::Function) where T<:Real # tups not restructed to Tuple
+function __gradients_for_root_finders(x::Union{AbstractArray{T},T},tups,tups_primal,f::Function; F::FF=nothing) where {T<:Real,FF<:Union{Nothing,AbstractVector{T}}} # tups not restructed to Tuple
     if any(isnan,x) # guard against NaN in input, do not need Dual types here?
         return x 
     end
-    return ift(x,f,tups,tups_primal) # use IFTDuals package, returns primal if tups has no duals
+    return ift(x,f,tups,tups_primal;Fbuff=F) # use IFTDuals package, returns primal if tups has no duals
 end
 
 IFTDuals.promote_my_type(m::EoSModel) = eltype(m)
