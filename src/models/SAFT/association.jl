@@ -593,24 +593,28 @@ end
 
 function assoc_matrix_solve_ad(Xsol::X, K::KT, K_primal::KP)::Vector{V2} where {V1,V2,X<:AbstractVector{V1},KT<:AbstractMatrix{V2},KP<:AbstractMatrix{V1}}
     N = Val(length(Xsol))
-    f(X_::XX_,tups_::Tuple{KK_,Val{N_}}) where {V1_,V2_,N_,XX_<:AbstractVector{V1_},KK_<:AbstractMatrix{V2_}} = begin 
-        TT = promote_type(V1_,V2_)
-        _1 = one(TT)
-        K_ = tups_[1]
+    f(F_::FF_,X_::XX_,K_::KK_) where {V<:Real,FF_<:AbstractVector{V},XX_<:AbstractVector,KK_<:AbstractMatrix} = begin 
+        _1 = one(V)
+        @inbounds for (i,ki) in enumerate(eachrow(K_))
+            F_[i] = dot(ki,X_)
+            F_[i] *= X_[i]
+            F_[i] += (X_[i] - _1)
+        end
         #itt = (@inbounds begin
-        #            ki = @view K_[i,:]
+        #        ki = @view K_[i,:]
         #            dot(ki,X_) * X_[i] + X_[i] - _1
         #        end
         #        for i in 1:N_) # Generator for inefficient code below
         #tmp = SVector{N_,TT}(itt)
-        tmp = K_ * X_ # K * X, allocates initial Vector{TT} buffer=#
-        tmp .*= X_ # (K * X) .* X
-        tmp .+= X_ # (K * X) .* X .+ X
-        tmp .-= _1 # (K * X) .* X .+ X .- 1
-        tmp
+        #tmp = K_ * X_ # K * X, allocates initial Vector{TT} buffer=#
+        #tmp .*= X_ # (K * X) .* X
+        #tmp .+= X_ # (K * X) .* X .+ X
+        #tmp .-= _1 # (K * X) .* X .+ X .- 1
+        #tmp
+        F_
     end# (1 + ∑_{jb} K⁽ⁱᵃʲᵇ⁾X⁽ⁱᵃʲᵇ⁾ )⁻¹ = Xⁱᵃ for all iₐ, but rearranged. 
     # f wrt X has polynomial form, which is easier (and more efficient) to differentiate compared to 1 ./ X
-    return __gradients_for_root_finders(Xsol,(K,N),(K_primal,N),f) # implicit AD
+    return __gradients_for_root_finders(Xsol,(K,N),(K_primal,N),f;F=similar(Xsol)) # implicit AD
 end
 
 #exact calculation of site non-bonded fraction when there is only one site
